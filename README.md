@@ -1,8 +1,23 @@
 # PostgresKeyValue
 
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/postgres_key_value`. To experiment with that code, run `bin/console` for an interactive prompt.
+**Key-Value storage for Posgresql**
 
-TODO: Delete this and the text above, and describe your gem
+Performant and simple key-value storage in Posgresql. With a Hash-like
+interface. Only dependency is pg gem.
+
+PostgresKeyValue tries to get out of your way, by being unopiniated small, and
+simple. 
+
+PostgresKeyValue depends on the [pg gem](https://rubygems.org/gems/pg), but
+doesn't add this as requirement, so that you can provide your own, your
+version, fork or compatible gem instead.
+
+Configuration and usage is done through dependency injection, which makes it
+easy for you to test, and to replace with mocks. The design aims to decouple as
+much as possible, allowing to integrate in the right place (and only there).
+
+A few tools are included to prepare and optimize the database. Usable in e.g.
+your migrations or a deploy script.
 
 ## Installation
 
@@ -22,7 +37,37 @@ Or install it yourself as:
 
 ## Usage
 
-TODO: Write usage instructions here
+Steps are as follows:
+
+1. Make a connection to a postgresql database.
+2. Instantiate a PostgresKeyValue object by passing in this connection.
+3. Write to-, and read from this database.
+
+```ruby
+require 'pg'
+require 'postgres_key_value'
+
+connection = PG::Connection.open(:dbname => 'test')
+greetings = PostgresKeyValue.new(connection) 
+
+greetings[:en] = "Hello World"
+greetings[:nl] = "Hallo Wereld"
+
+greetings[:en]                      #=> Hello World
+greetings[:de]                      #=> nil
+greetings.fetch(:de, 'No greeting') #=> No greeting
+greetings.key?(:nl)                 #=> true
+```
+
+## Technical details
+
+TODO
+
+* transactions
+* indexes
+* hstore
+* connection pools
+* read/write copies
 
 ## Development
 
@@ -32,7 +77,10 @@ To install this gem onto your local machine, run `bundle exec rake install`. To 
 
 ## Contributing
 
-Bug reports and pull requests are welcome on GitHub at https://github.com/Bèr Kessels/postgres_key_value. This project is intended to be a safe, welcoming space for collaboration, and contributors are expected to adhere to the [code of conduct](https://github.com/Bèr Kessels/postgres_key_value/blob/master/CODE_OF_CONDUCT.md).
+Bug reports and pull requests are welcome on GitHub at
+https://github.com/berkes/postgres_key_value. This project is intended to be a
+safe, welcoming space for collaboration, and contributors are expected to
+adhere to the [code of conduct](https://github.com/berkes/postgres_key_value/blob/master/CODE_OF_CONDUCT.md).
 
 ## License
 
@@ -40,4 +88,4 @@ The gem is available as open source under the terms of the [MIT License](https:/
 
 ## Code of Conduct
 
-Everyone interacting in the PostgresKeyValue project's codebases, issue trackers, chat rooms and mailing lists is expected to follow the [code of conduct](https://github.com/Bèr Kessels/postgres_key_value/blob/master/CODE_OF_CONDUCT.md).
+Everyone interacting in the PostgresKeyValue project's codebases, issue trackers, chat rooms and mailing lists is expected to follow the [code of conduct](https://github.com/berkes/postgres_key_value/blob/master/CODE_OF_CONDUCT.md).
