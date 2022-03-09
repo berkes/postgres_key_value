@@ -1,5 +1,7 @@
 # PostgresKeyValue
 
+[![Ruby](https://github.com/berkes/postgres_key_value/actions/workflows/main.yml/badge.svg)](https://github.com/berkes/postgres_key_value/actions/workflows/main.yml)
+
 **Key-Value storage for Posgresql**
 
 Performant and simple key-value storage in Posgresql. With a Hash-like
