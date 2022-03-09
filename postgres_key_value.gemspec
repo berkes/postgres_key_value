@@ -13,7 +13,7 @@ Gem::Specification.new do |spec|
                         With a Hash-like interface. Only dependency is pg gem"
   spec.homepage      = "https://github.com/berkes/postgres_key_value"
   spec.license       = "MIT"
-  spec.required_ruby_version = Gem::Requirement.new(">= 2.3.0")
+  spec.required_ruby_version = Gem::Requirement.new(">= 2.4.0")
 
   spec.metadata["allowed_push_host"] = "https://rubygems.org/"
 
