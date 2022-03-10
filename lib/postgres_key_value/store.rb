@@ -15,7 +15,13 @@ module PostgresKeyValue
 
     def []=(key, value)
       connection.transaction do |transaction|
-        sql = "INSERT INTO #{table} (key, value) VALUES('#{key}', '#{value.to_json}')"
+        sql = <<-SQL
+          INSERT INTO #{table} (key, value)
+          VALUES('#{key}', '#{value.to_json}')
+          ON CONFLICT (key) 
+          DO 
+            UPDATE SET value = '#{value.to_json}'; 
+        SQL
         transaction.exec(sql)
       end
     end

@@ -31,6 +31,12 @@ class PostgresKeyValueTest < Minitest::Test
     assert_equal('Nederland', beta['nl'])
   end
 
+  def test_it_updates_existing_keys
+    subject['nl'] = 'Nederland'
+    subject['nl'] = 'The Netherlands'
+    assert_equal('The Netherlands', subject['nl'])
+  end
+
   private
 
   def subject
