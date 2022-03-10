@@ -10,7 +10,7 @@ jobs:
       DB_NAME: postgres_db
       DB_USER: postgres
       DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
-      DB_HOST: postgres
+      DB_HOST: localhost
       DB_PORT: 5432
     services:
       postgres:
@@ -20,6 +20,11 @@ jobs:
           POSTGRES_PASSWORD: ${{ secrets.DB_PASSWORD }}
         ports:
           - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
     steps:
       - uses: actions/checkout@v2
       - name: Set up Ruby
