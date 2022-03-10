@@ -25,7 +25,7 @@ your migrations or a deploy script.
 
 Work in Progress. Here are some evident TODOs (will be moved into github issues later)
 
-* [ ] Fix glaring SQL injection holes. Use prepared statement or params to ensure clean input.
+* [x] Fix glaring SQL injection holes. Use prepared statement or params to ensure clean input.
 * [ ] Determine locking and transactional behaviour: who wins on a conflict?
 * [ ] Add proper index to key. Introduce some benchmark tests.
 * [ ] Allow read-only setup so that e.g. workers can read but never write.
@@ -36,6 +36,8 @@ Work in Progress. Here are some evident TODOs (will be moved into github issues 
 * [ ] Add a default to initializer for the entire store. Maybe with a block, to mimic Hash.new signature?
 * [ ] Add sanitizers and protection for the JSON de- serializers e.g. storage size or formats.
 * [ ] Allow JSON de- serializers to be dependency-injected instead of using `JSON.parse` and `x.to_json`.
+* [ ] Check for more robust SQL injection protection. e.g. by force-escaping before use?
+* [ ] Use prepared statement or params to improve performance.
 
 ## Installation
 

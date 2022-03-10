@@ -72,6 +72,15 @@ class PostgresKeyValueTest < Minitest::Test
     subject[key]
   end
 
+  # TODO: if someone knows a reproducible *value*, which becomes a SQL injection
+  # after .to_json, please let me know so I can write a test for that!
+  def test_it_handles_bobby_tables_keys_on_writing
+    key = "beta', '\"b\"'), ('gamma"
+    subject[key] = 'beta'
+    assert_equal(subject['beta'], nil)
+    assert_equal(subject['gamma'], nil)
+  end
+
   private
 
   def subject

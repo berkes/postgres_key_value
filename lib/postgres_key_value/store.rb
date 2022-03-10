@@ -7,28 +7,18 @@ module PostgresKeyValue
     def initialize(connection, table)
       @connection = connection
       @table = table
-
-      @default = nil
-
-      @fakehash = {}
     end
 
     def []=(key, value)
       assert_correct_key(key)
-      connection.transaction do |transaction|
-        sql = <<-SQL
-          INSERT INTO #{table} (key, value) VALUES('#{key}', '#{value.to_json}')
-          ON CONFLICT (key) DO UPDATE SET value = '#{value.to_json}'
-        SQL
-        transaction.exec(sql)
-      end
+      connection.exec_params(upsert_q, [key, value.to_json])
     rescue PG::ProgramLimitExceeded
       raise KeyLimitExceeded
     end
 
     def [](key)
       assert_correct_key(key)
-      res = connection.exec("SELECT value FROM #{table} WHERE key = '#{key}' LIMIT 1")
+      res = connection.exec_params(read_q, [key])
       return if res.num_tuples.zero?
 
       val = res.getvalue(0, 0)
@@ -41,6 +31,14 @@ module PostgresKeyValue
       return true if key.is_a?(String) || key.is_a?(Symbol)
 
       raise InvalidKey
+    end
+
+    def upsert_q
+      "INSERT INTO #{table} (key, value) VALUES($1::text, $2::json) ON CONFLICT (key) DO UPDATE SET value = $2::json"
+    end
+
+    def read_q
+      "SELECT value FROM #{table} where key = $1::text"
     end
 
     attr_reader :connection, :table
