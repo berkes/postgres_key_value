@@ -50,7 +50,7 @@ require 'pg'
 require 'postgres_key_value'
 
 connection = PG::Connection.open(:dbname => 'test')
-greetings = PostgresKeyValue.new(connection) 
+greetings = PostgresKeyValue::Store.new(connection) 
 
 greetings[:en] = "Hello World"
 greetings[:nl] = "Hallo Wereld"
@@ -59,6 +59,14 @@ greetings[:en]                      #=> Hello World
 greetings[:de]                      #=> nil
 greetings.fetch(:de, 'No greeting') #=> No greeting
 greetings.key?(:nl)                 #=> true
+
+# Can be another process on another machine entirely.
+Thread.new do
+  other_greetings = PostgresKeyValue::Store.new(connection) 
+  other_greetings[:en] = "Hello Mars!"
+end.join
+
+greetings[:en]                      #=> Hello Mars!
 ```
 
 ## Technical details

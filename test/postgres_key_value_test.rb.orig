@@ -5,13 +5,18 @@ require "test_helper"
 
 class PostgresKeyValueTest < Minitest::Test
   def setup
-    maint_connection = connection(db_name: "postgres")
+<<<<<<< HEAD
+    exists = connection.exec("SELECT 1 FROM pg_database WHERE datname = '#{db_name}'").nfields
+    connection.exec("CREATE DATABASE #{db_name}") unless exists
+=======
+    # TODO: use prepared statements with var interpolation instead.
     db_exists = maint_connection.exec("SELECT 1 FROM pg_database WHERE datname = '#{db_name}'").nfields
     maint_connection.exec("CREATE DATABASE #{db_name}") unless db_exists
 
     connection.exec("DROP TABLE IF EXISTS #{db_table}")
     connection.exec("CREATE TABLE IF NOT EXISTS #{db_table} (key VARCHAR PRIMARY KEY, value json)")
 
+>>>>>>> 504dcf6... Actually store the key-value in database
     super
   end
 
@@ -33,26 +38,42 @@ class PostgresKeyValueTest < Minitest::Test
 
   private
 
+<<<<<<< HEAD
+  def connection
+    @connection ||= PG.connect(
+=======
   def subject
     @subject ||= ::PostgresKeyValue::Store.new(connection, db_table)
   end
 
-  def connection(db_name: ENV.fetch("DB_NAME"))
-    connections[db_name] = PG.connect(
+  def maint_connection
+    # INK: connecting to PG using dotenv for test.
+    # * provide .env.template
+    # * document usage of .env for testing/dev
+    # * exclude .env from git
+    # * create and/or reset the database in a setup
+    # * just use a HAsh for now to actually drive the behaviour.
+    @maint_connection ||= PG.connect(
+>>>>>>> 504dcf6... Actually store the key-value in database
+      user: db_user,
+      password: db_password,
+      host: db_host,
+      port: db_port
+    )
+  end
+
+  def connection
+    @connection ||= PG.connect(
       user: db_user,
       password: db_password,
       host: db_host,
       port: db_port,
-      dbname: db_name
+      dbname: db_name,
     )
   end
 
-  def connections
-    @connections ||= {}
-  end
-
   def db_table
-    "kv_store"
+    'kv_store'
   end
 
   def db_name
