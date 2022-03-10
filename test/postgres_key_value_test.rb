@@ -21,27 +21,27 @@ class PostgresKeyValueTest < Minitest::Test
       user: db_user,
       password: db_password,
       host: db_host,
-      port: db_port,
+      port: db_port
     )
   end
 
   def db_name
-    ENV.fetch('DB_NAME')
+    ENV.fetch("DB_NAME")
   end
 
   def db_user
-    ENV.fetch('DB_USER')
+    ENV.fetch("DB_USER")
   end
 
   def db_password
-    ENV.fetch('DB_PASSWORD')
+    ENV.fetch("DB_PASSWORD")
   end
 
   def db_host
-    ENV.fetch('DB_HOST')
+    ENV.fetch("DB_HOST")
   end
 
   def db_port
-    ENV.fetch('DB_PORT')
+    ENV.fetch("DB_PORT")
   end
 end
