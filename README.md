@@ -55,10 +55,10 @@ greetings = PostgresKeyValue::Store.new(connection)
 greetings[:en] = "Hello World"
 greetings[:nl] = "Hallo Wereld"
 
-greetings[:en]                      #=> Hello World
-greetings[:de]                      #=> nil
-greetings.fetch(:de, 'No greeting') #=> No greeting
-greetings.key?(:nl)                 #=> true
+greetings[:en]                          #=> Hello World
+greetings['DE-de']                      #=> nil
+greetings.fetch('DE-de', 'No greeting') #=> No greeting
+greetings.key?(:nl)                     #=> true
 
 # Can be another process on another machine entirely.
 Thread.new do
@@ -66,10 +66,21 @@ Thread.new do
   other_greetings[:en] = "Hello Mars!"
 end.join
 
-greetings[:en]                      #=> Hello Mars!
+greetings[:en]                          #=> Hello Mars!
 ```
 
 ## Technical details
+
+Keys can only be strings or symbols. So be sure to convert your object to a 
+string explicitely before using.
+
+```ruby
+greetings[nil]  #=> PostgresKeyValue::InvalidKey
+greetings[42]   #=> PostgresKeyValue::InvalidKey
+greetings['']   #=> nil
+greetings['42'] #=> nil
+
+```
 
 TODO
 
@@ -78,6 +89,10 @@ TODO
 * hstore
 * connection pools
 * read/write copies
+
+Database is configured to store key/value in two columns: key is primary key,
+value of type json. Primary is of type string, so PG limitation on keys and string
+storage apply.
 
 ## Development
 

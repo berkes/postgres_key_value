@@ -37,6 +37,41 @@ class PostgresKeyValueTest < Minitest::Test
     assert_equal('The Netherlands', subject['nl'])
   end
 
+  def test_it_handles_any_string_keys
+    arr = %i[one two]
+    subject[arr.to_s] = 'some value'
+
+    assert_equal('some value', subject['[:one, :two]'])
+  end
+
+  def test_it_handles_symbol_keys
+    subject[:key] = 'some value'
+    assert_equal('some value', subject[:key])
+  end
+
+  def test_it_fails_on_setting_with_non_string_key
+    assert_raises(PostgresKeyValue::InvalidKey) { subject[nil] = 'some value' }
+    assert_raises(PostgresKeyValue::InvalidKey) { subject[42] = 'some value' }
+  end
+
+  def test_it_fails_on_getting_with_non_string_key
+    assert_raises(PostgresKeyValue::InvalidKey) { subject[nil] }
+    assert_raises(PostgresKeyValue::InvalidKey) { subject[42] }
+  end
+
+  def test_it_fails_on_setting_with_too_long_key
+    # 10485760 is the max for a varchar by default
+    key = 'k' * 10_485_760
+    assert_raises(PostgresKeyValue::KeyLimitExceeded) do
+      subject[key] = 'some value'
+    end
+  end
+
+  def test_it_allows_getting_with_too_long_key
+    key = 'k' * 10_485_760
+    subject[key]
+  end
+
   private
 
   def subject
