@@ -1,18 +1,33 @@
-name: Ruby
+---
+name: PostgresKeyValue
 
-on: [push,pull_request]
+on: [push, pull_request]  # yamllint disable-line rule:truthy
 
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      DB_NAME: postgres_db
+      DB_USER: postgres
+      DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+      DB_HOST: postgres
+      DB_PORT: 5432
+    services:
+      postgres:
+        image: postgres
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: ${{ secrets.DB_PASSWORD }}
+        ports:
+          - 5432:5432
     steps:
-    - uses: actions/checkout@v2
-    - name: Set up Ruby
-      uses: ruby/setup-ruby@v1
-      with:
-        ruby-version: 3.0.0
-    - name: Run the default task
-      run: |
-        gem install bundler -v 2.2.3
-        bundle install
-        bundle exec rake
+      - uses: actions/checkout@v2
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: 3.0.0
+      - name: Run the default task
+        run: |
+          gem install bundler -v 2.2.3
+          bundle install
+          bundle exec rake
