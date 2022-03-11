@@ -36,3 +36,4 @@ jobs:
           gem install bundler -v 2.2.3
           bundle install
           bundle exec rake
+          bundle exec rake benchmark
