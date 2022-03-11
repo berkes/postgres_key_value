@@ -36,7 +36,7 @@ Work in Progress. Here are some evident TODOs (will be moved into github issues 
 * [ ] Add a default to initializer for the entire store. Maybe with a block, to mimic Hash.new signature?
 * [ ] Add sanitizers and protection for the JSON de- serializers e.g. storage size or formats.
 * [ ] Allow JSON de- serializers to be dependency-injected instead of using `JSON.parse` and `x.to_json`.
-* [ ] Check for more robust SQL injection protection. e.g. by force-escaping before use?
+* [ ] Check for more robust SQL injection protection. e.g. by force-escaping before use? See: https://stackoverflow.com/a/42281333/73673
 * [ ] Use prepared statement or params to improve performance.
 
 ## Installation
