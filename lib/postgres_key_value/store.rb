@@ -38,7 +38,7 @@ module PostgresKeyValue
     end
 
     def read_q
-      "SELECT value FROM #{table} where key = $1::text"
+      "SELECT value FROM #{table} WHERE key = $1::text"
     end
 
     attr_reader :connection, :table
