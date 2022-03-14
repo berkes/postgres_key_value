@@ -10,6 +10,9 @@ interface. Only dependency is pg gem.
 PostgresKeyValue tries to get out of your way, by being unopiniated small, and
 simple. 
 
+It works similar, but not compatible to, Hash. Some features from Hash are implemented, others
+deliberately omitted when they don't make sense or would make leaky abstractions.
+
 PostgresKeyValue depends on the [pg gem](https://rubygems.org/gems/pg), but
 doesn't add this as requirement, so that you can provide your own, your
 version, fork or compatible gem instead.
@@ -156,13 +159,43 @@ TODO: write about
 
 * transactions
 * indexes
-* hstore
 * connection pools
 * read/write copies
 
 Database is configured to store key/value in two columns: key is primary key,
 value of type json. Primary is of type string, so PG limitation on keys and string
 storage apply.
+
+PostgresKeyValue deliberately tries not to be fully compatible with Hash. But it 
+does offer a similar interface. Mainly because such an opaque abstraction is leaky:
+
+A table with KV storages can, by design, grow very large, whereas a hash is
+memory bound. so features like iterators `store.each {|k,v| ... }` or
+`store.to_a` require the underlying limits to leak through. We'd then need
+logic, config, etc to handle when the database becomes too big for memory to hold.
+
+We allow keys only to be strings, and not "anything" as hash does. The database
+stores keys as strings, so if we'd allow "anything" as key, the marshalling or
+serializing would not only become complex, it puts a performance hit on all
+usage: so the ones using it with strings as keys would become slower too. 
+
+The values are serialized using JSON. This is lossy. This is by-design, but for
+security reasons. Marshalling code `object.marshall` retains the entire state,
+including methods, or callbacks and allows the provider of data to even
+monkeypatch your ruby codebase. We chose for JSON, as that is simplest, and
+therefore secured from these attacks (unless JSON.parse is vulnarable, which is
+not unthinkable).
+
+Many methods on Hash don't make a lot of sense either. E.g. most methods that
+operate on the entire hash, like `transform_keys!` or `compact` have little use
+in a pure KV lookup system. When in need of such operations, you probably need
+an actual database-table (which, not by coincidence, the `connection` already offers!)
+
+Another reason for not wanting to have feature-parity with Hash, is that it
+would grow this gem far beyond "simple", without there being a clear need for
+all the added features. Hash is really large! Rather, if there are features you need, raise an issue
+(or write a patch) so we can determine if it fits the scope and is worth the
+extra code.
 
 ## Development
 
