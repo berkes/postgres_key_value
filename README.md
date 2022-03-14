@@ -152,7 +152,7 @@ greetings['42'] #=> nil
 
 ```
 
-TODO
+TODO: write about
 
 * transactions
 * indexes
