@@ -32,7 +32,7 @@ Work in Progress. Here are some evident TODOs (will be moved into github issues 
 * [ ] Allow "connection" to be passed in from ActiveRecord (and sequel?) so that users can re-use it.
 * [x] Add tools to use in migrations or deploy scripts to setup database like we do in tests.
 * [x] Add `key?()` api to check if a key exists.
-* [ ] Add `fetch()` api to provide a default and/or raise exception similar to ENV and hash.
+* [x] Add `fetch()` api to provide a default and/or raise exception similar to ENV and hash.
 * [x] Add a default to initializer for the entire store. Maybe with a block, to mimic Hash.new signature?
 * [ ] Add sanitizers and protection for the JSON de- serializers e.g. storage size or formats.
 * [ ] Allow JSON de- serializers to be dependency-injected instead of using `JSON.parse` and `x.to_json`.

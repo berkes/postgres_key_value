@@ -50,6 +50,38 @@ class StoreTest < DatabaseTest
     assert(subject.key?('exists'))
   end
 
+  def test_fetch_returns_value
+    subject['exists'] = 'value'
+    assert_equal('value', subject.fetch('exists'))
+  end
+
+  def test_fetch_provides_default
+    assert_equal('not found', subject.fetch('404', 'not found'))
+  end
+
+  def test_fetch_fails_on_not_found_without_default
+    assert_raises(KeyError) do
+      subject.fetch('404')
+    end
+  end
+
+  def test_fetch_fails_on_not_found_without_default_even_with_instance_default
+    subject_with_default = ::PostgresKeyValue::Store.new(connection, db_table, 'missing')
+    assert_raises(KeyError) do
+      subject_with_default.fetch('404')
+    end
+  end
+
+  def test_fetch_default_ignores_instance_default
+    subject_with_default = ::PostgresKeyValue::Store.new(connection, db_table, 'missing')
+    assert_equal('not found', subject_with_default.fetch('404', 'not found'))
+  end
+
+  def test_fetch_default_ignores_instance_default_block
+    subject_with_default = ::PostgresKeyValue::Store.new(connection, db_table) { |key| "#{key} is missing" }
+    assert_equal('not found', subject_with_default.fetch('404', 'not found'))
+  end
+
   def test_it_fails_on_setting_with_non_string_key
     assert_raises(PostgresKeyValue::InvalidKey) { subject[nil] = 'some value' }
     assert_raises(PostgresKeyValue::InvalidKey) { subject[42] = 'some value' }
@@ -63,6 +95,11 @@ class StoreTest < DatabaseTest
   def test_it_fails_on_key_with_non_string_key
     assert_raises(PostgresKeyValue::InvalidKey) { subject.key?(nil) }
     assert_raises(PostgresKeyValue::InvalidKey) { subject.key?(42) }
+  end
+
+  def test_it_fails_on_fetch_with_non_string_key
+    assert_raises(PostgresKeyValue::InvalidKey) { subject.fetch(nil) }
+    assert_raises(PostgresKeyValue::InvalidKey) { subject.fetch(42) }
   end
 
   def test_it_fails_on_setting_with_too_long_key

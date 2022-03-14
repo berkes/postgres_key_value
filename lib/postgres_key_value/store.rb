@@ -23,7 +23,7 @@ module PostgresKeyValue
     def [](key)
       assert_correct_key(key)
       res = connection.exec_params(read_q, [key])
-      return default(key) if res.num_tuples.zero?
+      return instance_default(key) if res.num_tuples.zero?
 
       val = res.getvalue(0, 0)
       JSON.parse(val)
@@ -34,9 +34,22 @@ module PostgresKeyValue
       connection.exec_params(exists_q, [key]).num_tuples.positive?
     end
 
+    def fetch(key, default = nil)
+      assert_correct_key(key)
+      res = connection.exec_params(read_q, [key])
+
+      if res.num_tuples.zero?
+        return default if default
+        fail KeyError, "key not found: \"#{key}\""
+      end
+
+      val = res.getvalue(0, 0)
+      JSON.parse(val)
+    end
+
     private
 
-    def default(key)
+    def instance_default(key)
       if @block
         @block.call(key)
       else
