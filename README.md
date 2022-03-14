@@ -31,7 +31,7 @@ Work in Progress. Here are some evident TODOs (will be moved into github issues 
 * [ ] Allow read-only setup so that e.g. workers can read but never write.
 * [ ] Allow "connection" to be passed in from ActiveRecord (and sequel?) so that users can re-use it.
 * [x] Add tools to use in migrations or deploy scripts to setup database like we do in tests.
-* [ ] Add `key?()` api to check if a key exists.
+* [x] Add `key?()` api to check if a key exists.
 * [ ] Add `fetch()` api to provide a default and/or raise exception similar to ENV and hash.
 * [x] Add a default to initializer for the entire store. Maybe with a block, to mimic Hash.new signature?
 * [ ] Add sanitizers and protection for the JSON de- serializers e.g. storage size or formats.

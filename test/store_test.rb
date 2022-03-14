@@ -35,6 +35,21 @@ class StoreTest < DatabaseTest
     assert_equal('some value', subject[:key])
   end
 
+  def test_key_returns_true_if_key_exists
+    subject['exists'] = 'value'
+    assert(subject.key?('exists'))
+  end
+
+  def test_key_returns_false_if_key_doesnt_exist
+    refute(subject.key?('exists'))
+  end
+
+  def test_key_returns_true_even_if_value_falsey
+    subject['exists'] = nil
+    assert_nil(subject['exists'])
+    assert(subject.key?('exists'))
+  end
+
   def test_it_fails_on_setting_with_non_string_key
     assert_raises(PostgresKeyValue::InvalidKey) { subject[nil] = 'some value' }
     assert_raises(PostgresKeyValue::InvalidKey) { subject[42] = 'some value' }
@@ -43,6 +58,11 @@ class StoreTest < DatabaseTest
   def test_it_fails_on_getting_with_non_string_key
     assert_raises(PostgresKeyValue::InvalidKey) { subject[nil] }
     assert_raises(PostgresKeyValue::InvalidKey) { subject[42] }
+  end
+
+  def test_it_fails_on_key_with_non_string_key
+    assert_raises(PostgresKeyValue::InvalidKey) { subject.key?(nil) }
+    assert_raises(PostgresKeyValue::InvalidKey) { subject.key?(42) }
   end
 
   def test_it_fails_on_setting_with_too_long_key

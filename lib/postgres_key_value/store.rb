@@ -29,6 +29,11 @@ module PostgresKeyValue
       JSON.parse(val)
     end
 
+    def key?(key)
+      assert_correct_key(key)
+      connection.exec_params(exists_q, [key]).num_tuples.positive?
+    end
+
     private
 
     def default(key)
@@ -51,6 +56,10 @@ module PostgresKeyValue
 
     def read_q
       "SELECT value FROM #{table} WHERE key = $1::text"
+    end
+
+    def exists_q
+      "SELECT 1 FROM #{table} WHERE key = $1::text LIMIT 1"
     end
 
     attr_reader :connection, :table
