@@ -4,9 +4,10 @@ module PostgresKeyValue
   ##
   # Interact with the Key Value Store
   class Store
-    def initialize(connection, table)
+    def initialize(connection, table, default = nil)
       @connection = connection
       @table = table
+      @default = default
     end
 
     def []=(key, value)
@@ -19,7 +20,7 @@ module PostgresKeyValue
     def [](key)
       assert_correct_key(key)
       res = connection.exec_params(read_q, [key])
-      return if res.num_tuples.zero?
+      return default if res.num_tuples.zero?
 
       val = res.getvalue(0, 0)
       JSON.parse(val)
@@ -41,6 +42,6 @@ module PostgresKeyValue
       "SELECT value FROM #{table} WHERE key = $1::text"
     end
 
-    attr_reader :connection, :table
+    attr_reader :connection, :table, :default
   end
 end

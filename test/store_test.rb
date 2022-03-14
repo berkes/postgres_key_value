@@ -58,6 +58,11 @@ class StoreTest < DatabaseTest
     subject[key]
   end
 
+  def test_it_returns_default_value_on_missing_key
+    subject_with_default = ::PostgresKeyValue::Store.new(connection, db_table, 'missing')
+    assert_equal('missing', subject_with_default['404'])
+  end
+
   # TODO: if someone knows a reproducible *value*, which becomes a SQL injection
   # after .to_json, please let me know so I can write a test for that!
   def test_it_handles_bobby_tables_keys_on_writing
