@@ -27,7 +27,7 @@ Work in Progress. Here are some evident TODOs (will be moved into github issues 
 
 * [x] Fix glaring SQL injection holes. Use prepared statement or params to ensure clean input.
 * [ ] Determine locking and transactional behaviour: who wins on a conflict?
-* [ ] Add proper index to key. Introduce some benchmark tests.
+* [x] Add proper index to key. Introduce some benchmark tests.
 * [ ] Allow read-only setup so that e.g. workers can read but never write.
 * [ ] Allow "connection" to be passed in from ActiveRecord (and sequel?) so that users can re-use it.
 * [ ] Add tools to use in migrations or deploy scripts to setup database like we do in tests.
@@ -85,6 +85,58 @@ Thread.new do
 end.join
 
 greetings[:en]                          #=> Hello Mars!
+```
+
+## Utils
+
+Utils to create and prepare the table are provided. For example in your migrations:
+
+```ruby
+class CreateKVTableForCursors < ButtonShop::Migration
+  include PostgresKeyValue::Utils
+
+  def migrate_up
+    create_table('cursors', 'buttonshop_kv_store')
+  end
+
+  def migrate_down
+    drop_table('cursors', 'buttonshop_kv_store')
+  end
+
+  private
+
+  def connection
+    ButtonShop.config.primary_db_connection
+  end
+end
+```
+
+And in a hypthetical deployment or provisioning tool
+
+```
+class CursorsKvPreparator
+  include PostgresKeyValue::Utils
+  DB_NAME = 'buttonshop_kv_store'
+  TABLE_NAME = 'cursors'
+
+  def initialize(connection)
+    @table_name = table_name
+    @connection = connection
+  end
+
+  def prepare
+    create_database(DB_NAME)
+    create_table(TABLE_NAME, DB_NAME)
+  end
+
+  private
+
+  attr_reader :connection
+end
+
+on :staging_server do
+  CursorsKvPreparator.new(@pg_connection).prepare
+end
 ```
 
 ## Technical details

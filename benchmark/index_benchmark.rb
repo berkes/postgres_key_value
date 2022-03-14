@@ -2,12 +2,17 @@
 
 require 'pg'
 require 'benchmark_helper'
+require 'benchmark'
 
 ##
 # Benchmark tests to compare indexes and assure linearity remains throughout
 # changes in code.
+#
+# We get a _pkey index from the Primary Key constraint by design in PG. And we
+# rely on this constraint for the upsert logic, so we cannot  test inserts'
+# performance characteristics without an index realistic.
 class IndexBenchmark < Minitest::Benchmark
-  THRESHOLD = 0.998
+  THRESHOLD = 0.99
 
   def setup
     maint_connection = connection(db_name: 'postgres')
@@ -20,43 +25,29 @@ class IndexBenchmark < Minitest::Benchmark
     @value = 'Hello World'
   end
 
-  def bench_insert_without_index
-    assert_performance_linear(THRESHOLD) do |n|
-      insert_n(n)
-    end
-  end
-
   def bench_read_without_index
-    insert_n(bench_range.max)
-    assert_performance_linear(THRESHOLD) do |n|
-      read_n(n)
-    end
+    n = bench_range.max
+    insert_n(n)
+    time_with_index = Benchmark.measure { read_n(n) }
+    remove_pkey_constraint
+    time_without_index = Benchmark.measure { read_n(n) }
+    assert(time_with_index.real < time_without_index.real)
   end
 
   def bench_insert_with_index
-    connection.exec("CREATE UNIQUE INDEX key_index ON #{db_table} USING btree (key)")
     assert_performance_linear(THRESHOLD) do |n|
       insert_n(n)
     end
   end
 
   def bench_read_with_index
-    connection.exec("CREATE UNIQUE INDEX key_index ON #{db_table} USING btree (key)")
     insert_n(bench_range.max)
     assert_performance_linear(THRESHOLD) do |n|
       read_n(n)
     end
   end
 
-  def bench_upsert_without_index
-    insert_n(bench_range.max)
-    assert_performance_linear(THRESHOLD) do |n|
-      insert_n(n)
-    end
-  end
-
   def bench_upsert_with_index
-    connection.exec("CREATE UNIQUE INDEX key_index ON #{db_table} USING btree (key)")
     insert_n(bench_range.max)
     assert_performance_linear(THRESHOLD) do |n|
       insert_n(n)
@@ -77,6 +68,10 @@ class IndexBenchmark < Minitest::Benchmark
     amount.times do |index|
       subject[index.to_s]
     end
+  end
+
+  def remove_pkey_constraint
+    connection.exec("ALTER TABLE #{db_table} DROP CONSTRAINT #{db_table}_pkey")
   end
 
   def subject
