@@ -4,10 +4,13 @@ module PostgresKeyValue
   ##
   # Interact with the Key Value Store
   class Store
-    def initialize(connection, table, default = nil)
+    def initialize(connection, table, default = nil, &block)
       @connection = connection
       @table = table
+
       @default = default
+      @block = block_given? ? block : nil
+      raise ArgumentError, 'cannot provide both default value and default block' if @default && @block
     end
 
     def []=(key, value)
@@ -20,13 +23,21 @@ module PostgresKeyValue
     def [](key)
       assert_correct_key(key)
       res = connection.exec_params(read_q, [key])
-      return default if res.num_tuples.zero?
+      return default(key) if res.num_tuples.zero?
 
       val = res.getvalue(0, 0)
       JSON.parse(val)
     end
 
     private
+
+    def default(key)
+      if @block
+        @block.call(key)
+      else
+        @default
+      end
+    end
 
     def assert_correct_key(key)
       return true if key.is_a?(String) || key.is_a?(Symbol)
@@ -42,6 +53,6 @@ module PostgresKeyValue
       "SELECT value FROM #{table} WHERE key = $1::text"
     end
 
-    attr_reader :connection, :table, :default
+    attr_reader :connection, :table
   end
 end
