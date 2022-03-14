@@ -125,7 +125,7 @@ class CursorsKvPreparator
   end
 
   def prepare
-    create_database(DB_NAME)
+    MyInfra::Databases::CreateDatabaseCommand.new(DB_NAME)
     create_table(TABLE_NAME, DB_NAME)
   end
 
