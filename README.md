@@ -1,6 +1,7 @@
 # PostgresKeyValue
 
 [![Ruby](https://github.com/berkes/postgres_key_value/actions/workflows/main.yml/badge.svg)](https://github.com/berkes/postgres_key_value/actions/workflows/main.yml)
+[![Gem Version](https://badge.fury.io/rb/postgres_key_value.svg)](https://badge.fury.io/rb/postgres_key_value)
 
 **Key-Value storage for Posgresql**
 
