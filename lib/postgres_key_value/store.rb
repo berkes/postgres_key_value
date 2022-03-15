@@ -48,6 +48,15 @@ module PostgresKeyValue
       JSON.parse(val)
     end
 
+    def delete(key)
+      assert_correct_key(key)
+      res = connection.exec_params(delete_q, [key])
+      return nil if res.num_tuples.zero?
+
+      val = res.getvalue(0, 0)
+      JSON.parse(val)
+    end
+
     private
 
     def instance_default(key)
@@ -64,16 +73,20 @@ module PostgresKeyValue
       raise InvalidKey
     end
 
-    def upsert_q
-      "INSERT INTO #{table} (key, value) VALUES($1::text, $2::json) ON CONFLICT (key) DO UPDATE SET value = $2::json"
-    end
-
     def read_q
       "SELECT value FROM #{table} WHERE key = $1::text"
     end
 
     def exists_q
       "SELECT 1 FROM #{table} WHERE key = $1::text LIMIT 1"
+    end
+
+    def upsert_q
+      "INSERT INTO #{table} (key, value) VALUES($1::text, $2::json) ON CONFLICT (key) DO UPDATE SET value = $2::json"
+    end
+
+    def delete_q
+      "DELETE FROM #{table} WHERE key = $1::text RETURNING value"
     end
 
     attr_reader :connection, :table

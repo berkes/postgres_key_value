@@ -4,6 +4,10 @@ require 'test_helper'
 require 'postgres_key_value/errors'
 require 'postgres_key_value/store'
 
+##
+# Test the main interface for PostgresKeyValue.
+#
+# rubocop:disable Metrics/ClassLength
 class StoreTest < DatabaseTest
   def test_it_should_write_and_read_strings
     subject['nl'] = 'Nederland'
@@ -76,6 +80,23 @@ class StoreTest < DatabaseTest
     assert_raises(PostgresKeyValue::InvalidKey) { subject[42] = 'some value' }
   end
 
+  def test_it_deletes_by_key
+    subject['nl'] = 'Netherlands'
+    subject.delete('nl')
+
+    assert_nil(subject['nl'])
+    refute(subject.key?('nl'))
+  end
+
+  def test_it_returns_vaue_on_delete
+    subject['nl'] = 'Netherlands'
+    assert_equal('Netherlands', subject.delete('nl'))
+  end
+
+  def test_it_deletes_not_found_keys_silent
+    assert_nil(subject.delete('not found'))
+  end
+
   def test_it_fails_on_getting_with_non_string_key
     assert_raises(PostgresKeyValue::InvalidKey) { subject[42] }
   end
@@ -86,6 +107,10 @@ class StoreTest < DatabaseTest
 
   def test_it_fails_on_fetch_with_non_string_key
     assert_raises(PostgresKeyValue::InvalidKey) { subject.fetch(42) }
+  end
+
+  def test_it_fails_on_delete_with_non_string_key
+    assert_raises(PostgresKeyValue::InvalidKey) { subject.delete(42) }
   end
 
   def test_it_fails_on_setting_with_too_long_key
@@ -138,3 +163,4 @@ class StoreTest < DatabaseTest
     @subject_with_default_value ||= ::PostgresKeyValue::Store.new(connection, db_table, 'missing')
   end
 end
+# rubocop:enable all
