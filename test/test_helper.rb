@@ -2,10 +2,14 @@
 
 $LOAD_PATH.unshift File.expand_path('../lib', __dir__)
 require 'pg'
-require 'minitest/autorun'
-require 'dotenv'
 
+require 'dotenv'
 Dotenv.load
+
+require 'simplecov'
+SimpleCov.start
+
+require 'minitest/autorun'
 
 class DatabaseConnections
   def maintainance_connection
