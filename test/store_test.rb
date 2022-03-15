@@ -8,6 +8,8 @@ require 'postgres_key_value/store'
 # Test the main interface for PostgresKeyValue.
 #
 # rubocop:disable Metrics/ClassLength
+# For the main testclass that testst the public interface, we allow a much
+# longer class
 class StoreTest < DatabaseTest
   def test_it_should_write_and_read_strings
     subject['nl'] = 'Nederland'
