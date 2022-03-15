@@ -60,6 +60,13 @@ Or install it yourself as:
 
     $ gem install postgres_key_value
 
+We don't install pg gem for you as dependency, so ensure you add it yourself.
+For example:
+
+```ruby
+gem 'pg'
+```
+
 ## Usage
 
 Steps are as follows:
