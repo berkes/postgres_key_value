@@ -24,9 +24,7 @@ class StoreTest < DatabaseTest
   end
 
   def test_it_handles_any_string_keys
-    arr = %i[one two]
-    subject[arr.to_s] = 'some value'
-
+    subject[%i[one two].to_s] = 'some value'
     assert_equal('some value', subject['[:one, :two]'])
   end
 
@@ -46,7 +44,6 @@ class StoreTest < DatabaseTest
 
   def test_key_returns_true_even_if_value_falsey
     subject['exists'] = nil
-    assert_nil(subject['exists'])
     assert(subject.key?('exists'))
   end
 
@@ -60,69 +57,51 @@ class StoreTest < DatabaseTest
   end
 
   def test_fetch_fails_on_not_found_without_default
-    assert_raises(KeyError) do
-      subject.fetch('404')
-    end
+    assert_raises(KeyError) { subject.fetch('404') }
   end
 
   def test_fetch_fails_on_not_found_without_default_even_with_instance_default
-    subject_with_default = ::PostgresKeyValue::Store.new(connection, db_table, 'missing')
-    assert_raises(KeyError) do
-      subject_with_default.fetch('404')
-    end
+    assert_raises(KeyError) { subject_with_default_value.fetch('404') }
   end
 
   def test_fetch_default_ignores_instance_default
-    subject_with_default = ::PostgresKeyValue::Store.new(connection, db_table, 'missing')
-    assert_equal('not found', subject_with_default.fetch('404', 'not found'))
+    assert_equal('not found', subject_with_default_value.fetch('404', 'not found'))
   end
 
   def test_fetch_default_ignores_instance_default_block
-    subject_with_default = ::PostgresKeyValue::Store.new(connection, db_table) { |key| "#{key} is missing" }
-    assert_equal('not found', subject_with_default.fetch('404', 'not found'))
+    assert_equal('not found', subject_with_default_block.fetch('404', 'not found'))
   end
 
   def test_it_fails_on_setting_with_non_string_key
-    assert_raises(PostgresKeyValue::InvalidKey) { subject[nil] = 'some value' }
     assert_raises(PostgresKeyValue::InvalidKey) { subject[42] = 'some value' }
   end
 
   def test_it_fails_on_getting_with_non_string_key
-    assert_raises(PostgresKeyValue::InvalidKey) { subject[nil] }
     assert_raises(PostgresKeyValue::InvalidKey) { subject[42] }
   end
 
   def test_it_fails_on_key_with_non_string_key
-    assert_raises(PostgresKeyValue::InvalidKey) { subject.key?(nil) }
     assert_raises(PostgresKeyValue::InvalidKey) { subject.key?(42) }
   end
 
   def test_it_fails_on_fetch_with_non_string_key
-    assert_raises(PostgresKeyValue::InvalidKey) { subject.fetch(nil) }
     assert_raises(PostgresKeyValue::InvalidKey) { subject.fetch(42) }
   end
 
   def test_it_fails_on_setting_with_too_long_key
-    # 10485760 is the max for a varchar by default
-    key = 'k' * 10_485_760
-    assert_raises(PostgresKeyValue::KeyLimitExceeded) do
-      subject[key] = 'some value'
-    end
+    assert_raises(PostgresKeyValue::KeyLimitExceeded) { subject[long_key] = 'some value' }
   end
 
   def test_it_allows_getting_with_too_long_key
-    key = 'k' * 10_485_760
-    subject[key]
+    subject[long_key]
   end
 
   def test_it_returns_default_value_on_missing_key
-    subject_with_default = ::PostgresKeyValue::Store.new(connection, db_table, 'missing')
-    assert_equal('missing', subject_with_default['404'])
+    assert_equal('missing', subject_with_default_value['404'])
   end
 
   def test_it_returns_from_block_on_missing_key
-    subject_with_default = ::PostgresKeyValue::Store.new(connection, db_table) { |key| "#{key} is missing" }
-    assert_equal('404 is missing', subject_with_default['404'])
+    assert_equal('404 is missing', subject_with_default_block['404'])
   end
 
   def test_it_fails_when_default_value_and_block_provided
@@ -144,5 +123,18 @@ class StoreTest < DatabaseTest
 
   def subject
     @subject ||= ::PostgresKeyValue::Store.new(connection, db_table)
+  end
+
+  def long_key
+    # 10485760 is the max for a varchar by default
+    'k' * 10_485_760
+  end
+
+  def subject_with_default_block
+    @subject_with_default_block ||= ::PostgresKeyValue::Store.new(connection, db_table) { |key| "#{key} is missing" }
+  end
+
+  def subject_with_default_value
+    @subject_with_default_value ||= ::PostgresKeyValue::Store.new(connection, db_table, 'missing')
   end
 end

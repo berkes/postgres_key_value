@@ -40,7 +40,8 @@ module PostgresKeyValue
 
       if res.num_tuples.zero?
         return default if default
-        fail KeyError, "key not found: \"#{key}\""
+
+        raise KeyError, "key not found: \"#{key}\""
       end
 
       val = res.getvalue(0, 0)
