@@ -39,6 +39,13 @@ class StoreTest < DatabaseTest
     assert_equal('some value', subject[:key])
   end
 
+  def test_it_allows_symbol_and_string_keys_to_collide
+    subject[:nl] = 'Netherlands'
+    assert(subject.key?('nl'))
+    assert_equal('Netherlands', subject['nl'])
+    assert_equal('Netherlands', subject.fetch('nl'))
+  end
+
   def test_key_returns_true_if_key_exists
     subject['exists'] = 'value'
     assert(subject.key?('exists'))
