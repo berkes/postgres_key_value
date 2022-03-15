@@ -2,6 +2,7 @@
 
 [![Ruby](https://github.com/berkes/postgres_key_value/actions/workflows/main.yml/badge.svg)](https://github.com/berkes/postgres_key_value/actions/workflows/main.yml)
 [![Gem Version](https://badge.fury.io/rb/postgres_key_value.svg)](https://badge.fury.io/rb/postgres_key_value)
+[![Maintainability](https://api.codeclimate.com/v1/badges/2315ea261cc094010c76/maintainability)](https://codeclimate.com/github/berkes/postgres_key_value/maintainability)
 
 **Key-Value storage for Posgresql**
 
