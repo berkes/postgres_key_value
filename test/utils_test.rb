@@ -29,6 +29,12 @@ class UtilsTest < DatabaseTest
     refute_includes(res.field_values('tablename'), db_table)
   end
 
+  def test_utils_requires_a_maintainance_connection_method
+    assert_raises(NotImplementedError) do
+      WrongTestMigration.new.create_table('kv_store')
+    end
+  end
+
   ##
   # Example usage of Utils, used to test the module.
   class TestMigration
@@ -46,5 +52,11 @@ class UtilsTest < DatabaseTest
     def connections_pool
       @connections_pool ||= DatabaseConnections.new
     end
+  end
+
+  ##
+  # Example usage of Utils, but without implementing required method
+  class WrongTestMigration
+    include PostgresKeyValue::Utils
   end
 end
