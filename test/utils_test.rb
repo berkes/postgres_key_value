@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require 'pg'
 require 'test_helper'
 require 'postgres_key_value/utils'
 
@@ -32,6 +33,27 @@ class UtilsTest < DatabaseTest
   def test_utils_requires_a_maintainance_connection_method
     assert_raises(NotImplementedError) do
       WrongTestMigration.new.create_table('kv_store')
+    end
+  end
+
+  def test_database_maintainance_connection_connects_to_postgres_database
+    pool = PostgresKeyValue::Utils::DatabaseConnections.new
+    assert_kind_of(PG::Connection, pool.maintainance_connection)
+    assert_equal('postgres', pool.maintainance_connection.db)
+  end
+
+  def test_database_connection_connects_to_any_database
+    pool = PostgresKeyValue::Utils::DatabaseConnections.new
+    assert_kind_of(PG::Connection, pool.connection(db_name: ENV.fetch('DB_NAME')))
+  end
+
+  def test_database_connection_closes_all_connection
+    pool = PostgresKeyValue::Utils::DatabaseConnections.new
+    pool.maintainance_connection
+    pool.connection(db_name: ENV.fetch('DB_NAME'))
+    pool.close_all
+    assert_raises(PG::ConnectionBad) do
+      pool.maintainance_connection.exec('SELECT VERSION()')
     end
   end
 

@@ -12,15 +12,15 @@ require 'benchmark'
 # rely on this constraint for the upsert logic, so we cannot  test inserts'
 # performance characteristics without an index realistic.
 class IndexBenchmark < Minitest::Benchmark
+  include PostgresBMHelper
   THRESHOLD = 0.99
 
-  def setup
-    maint_connection = connection(db_name: 'postgres')
-    db_exists = maint_connection.exec("SELECT 1 FROM pg_database WHERE datname = '#{db_name}'").nfields
-    maint_connection.exec("CREATE DATABASE #{db_name}") unless db_exists
+  def self.bench_range
+    bench_exp 1, 10
+  end
 
-    connection.exec("DROP TABLE IF EXISTS #{db_table}")
-    connection.exec("CREATE TABLE IF NOT EXISTS #{db_table} (key VARCHAR PRIMARY KEY, value json)")
+  def setup
+    prepare_postgres
 
     @value = 'Hello World'
   end
@@ -78,45 +78,7 @@ class IndexBenchmark < Minitest::Benchmark
     @subject ||= ::PostgresKeyValue::Store.new(connection, db_table)
   end
 
-  def connection(db_name: ENV.fetch('DB_NAME'))
-    connections[db_name] = PG.connect(
-      user: db_user,
-      password: db_password,
-      host: db_host,
-      port: db_port,
-      dbname: db_name
-    )
-  end
-
-  def connections
-    @connections ||= {}
-  end
-
   def bench_range
     self.class.bench_range
-  end
-
-  def db_table
-    'kv_store'
-  end
-
-  def db_name
-    ENV.fetch('DB_NAME')
-  end
-
-  def db_user
-    ENV.fetch('DB_USER')
-  end
-
-  def db_password
-    ENV.fetch('DB_PASSWORD')
-  end
-
-  def db_host
-    ENV.fetch('DB_HOST')
-  end
-
-  def db_port
-    ENV.fetch('DB_PORT')
   end
 end

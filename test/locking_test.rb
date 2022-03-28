@@ -3,24 +3,26 @@
 require 'test_helper'
 require 'postgres_key_value/errors'
 require 'postgres_key_value/store'
+require 'postgres_key_value/utils'
 
-require 'byebug'
 ##
 # Test and demonstrate the locking and transactional behaviour
 class LockingTest < DatabaseTest
   # This will hang if threads close transactions or run queries on one
   # connection while another one is underway.
   def test_it_does_not_lock
-    threads = []
     # Ready.. Set... Go!
-    (1..10).each do |i|
-      threads << Thread.new { new_subject[:one] = i }
-    end
+    threads = (1..10).map { |i| Thread.new { new_subject[:one] = i } }
     # Assert all threads are finished
     threads.each(&:join)
     assert(threads.map(&:status).all? { |status| status == false })
   end
 
+  # rubocop:disable Metrics/AbcSize
+  # rubocop:disable Metrics/MethodLength
+  # Disable Rubocop because the threading is rather complex in nature. And
+  # abstracting it away doesn't make the test more readable. Refactoring still
+  # welcome, though.
   def test_it_waits_for_a_transaction_to_commit_before_reading
     thread = Thread.new do
       one_connection = connection
@@ -46,6 +48,8 @@ class LockingTest < DatabaseTest
 
     assert_nil(raced_val)
   end
+  # rubocop:enable Metrics/AbcSize
+  # rubocop:enable Metrics/MethodLength
 
   private
 
@@ -61,7 +65,7 @@ class LockingTest < DatabaseTest
   end
 
   def db_config
-    @db_config ||= DatabaseConnections.new
+    @db_config ||= PostgresKeyValue::Utils::DatabaseConnections.new
   end
 
   # Don't memoize to avoid threads re-using the same connection

@@ -11,54 +11,6 @@ SimpleCov.start
 
 require 'minitest/autorun'
 
-class DatabaseConnections
-  def maintainance_connection
-    connection(db_name: 'postgres')
-  end
-
-  def connection(db_name:)
-    connections[db_name] ||= PG.connect(
-      user: db_user,
-      password: db_password,
-      host: db_host,
-      port: db_port,
-      dbname: db_name
-    )
-  end
-
-  def close_all
-    connections.values.reject(&:finished?).each(&:close)
-  end
-
-  def connections
-    @connections ||= {}
-  end
-
-  def db_table
-    'kv_store'
-  end
-
-  def db_name
-    ENV.fetch('DB_NAME')
-  end
-
-  def db_user
-    ENV.fetch('DB_USER')
-  end
-
-  def db_password
-    ENV.fetch('DB_PASSWORD')
-  end
-
-  def db_host
-    ENV.fetch('DB_HOST')
-  end
-
-  def db_port
-    ENV.fetch('DB_PORT')
-  end
-end
-
 ##
 # A Test Class which runs test with the database enabled and prepared
 class DatabaseTest < Minitest::Test
@@ -101,6 +53,6 @@ class DatabaseTest < Minitest::Test
   end
 
   def connections_pool
-    @connections_pool ||= DatabaseConnections.new
+    @connections_pool ||= PostgresKeyValue::Utils::DatabaseConnections.new
   end
 end
