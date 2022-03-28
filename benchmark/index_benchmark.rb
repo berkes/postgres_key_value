@@ -15,10 +15,6 @@ class IndexBenchmark < Minitest::Benchmark
   include PostgresBMHelper
   THRESHOLD = 0.99
 
-  def self.bench_range
-    bench_exp 1, 10
-  end
-
   def setup
     prepare_postgres
 

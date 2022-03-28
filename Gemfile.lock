@@ -17,6 +17,7 @@ GEM
     pg (1.3.3)
     rainbow (3.1.1)
     rake (13.0.6)
+    redis (4.6.0)
     regexp_parser (2.2.1)
     rexml (3.2.5)
     rubocop (0.93.1)
@@ -49,6 +50,7 @@ DEPENDENCIES
   pg (~> 1)
   postgres_key_value!
   rake (~> 13.0)
+  redis
   rubocop (~> 0.80)
   simplecov (~> 0.21.2)
 

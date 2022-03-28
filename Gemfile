@@ -13,3 +13,6 @@ gem 'rubocop', '~> 0.80'
 gem 'simplecov', '~> 0.21.2'
 
 gem 'pg', '~> 1'
+
+# For benchmarks
+gem 'redis'
