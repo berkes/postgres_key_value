@@ -32,7 +32,7 @@ your migrations or a deploy script.
 Work in Progress. Here are some evident TODOs (will be moved into github issues later)
 
 * [x] Fix glaring SQL injection holes. Use prepared statement or params to ensure clean input.
-* [ ] Determine locking and transactional behaviour: who wins on a conflict?
+* [x] Determine locking and transactional behaviour: who wins on a conflict?
 * [x] Add proper index to key. Introduce some benchmark tests.
 * [ ] Allow read-only setup so that e.g. workers can read but never write.
 * [ ] Allow "connection" to be passed in from ActiveRecord (and sequel?) so that users can re-use it.
