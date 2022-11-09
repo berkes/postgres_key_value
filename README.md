@@ -126,7 +126,7 @@ end
 
 And in a hypthetical deployment or provisioning tool
 
-```
+```ruby
 class CursorsKvPreparator
   include PostgresKeyValue::Utils
   DB_NAME = 'buttonshop_kv_store'
